@@ -41,7 +41,7 @@ tubedigest/
 └── package.json
 ```
 
-The server fetches the YouTube watch page for a validated 11-character video ID, reads its exposed caption-track metadata, and requests the selected caption track in timed JSON format. User-provided hosts or caption URLs are never fetched, which prevents the URL field from becoming a general-purpose SSRF primitive.
+The server fetches the YouTube watch page for a validated 11-character video ID, reads its exposed caption-track metadata, and retrieves the selected timed-caption track through YouTube's player interface. User-provided hosts or caption URLs are never fetched, which prevents the URL field from becoming a general-purpose SSRF primitive.
 
 ## Requirements
 
