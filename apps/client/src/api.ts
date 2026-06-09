@@ -15,7 +15,7 @@ export interface SummaryResponse {
   };
   summary: {
     markdown: string;
-    provider: "openai" | "mock";
+    provider: "openai" | "ollama" | "extractive";
     model: string;
   };
   stats: {

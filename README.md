@@ -1,6 +1,6 @@
 # TubeDigest
 
-TubeDigest is an open-source web app that turns accessible YouTube captions into a structured, full-video text summary. It never downloads video or audio media. The backend discovers available caption tracks, prefers English by default, cleans and chunks the transcript, and produces a grounded summary with OpenAI or a local extractive mock.
+TubeDigest is an open-source web app that turns accessible YouTube captions into a structured, full-video text summary. It never downloads video or audio media. The backend discovers available caption tracks, prefers English by default, reconstructs fragmented auto-captions, and produces a grounded summary with free local Ollama, OpenAI, or a basic extractive fallback.
 
 ## Features
 
@@ -11,8 +11,9 @@ TubeDigest is an open-source web app that turns accessible YouTube captions into
 - Preserves caption timing for timestamped sections
 - Cleans duplicate caption artifacts, markup, entities, and whitespace
 - Uses hierarchical chunk summaries for long videos
-- Keeps OpenAI credentials exclusively on the backend
-- Includes a no-key mock summarizer for local development
+- Uses free local Ollama models without sending transcripts to a cloud AI
+- Keeps optional OpenAI credentials exclusively on the backend
+- Includes a coherent timed-passage fallback when no AI provider is available
 - Caches cleaned transcripts in memory and on disk
 - Adds request size limits, strict validation, security headers, CORS controls, and rate limiting
 - Provides copy-to-clipboard and text-download actions
@@ -47,7 +48,8 @@ The server fetches the YouTube watch page for a validated 11-character video ID,
 
 - Node.js 20 or newer
 - npm 10 or newer
-- An OpenAI API key for AI-generated summaries (optional)
+- Ollama for free local AI summaries (recommended)
+- An OpenAI API key as an optional cloud fallback
 
 ## Installation
 
@@ -67,7 +69,27 @@ npm install
 cp .env.example .env
 ```
 
-Add an API key to `.env` for production-quality summaries:
+### Recommended: free local AI with Ollama
+
+Install [Ollama](https://ollama.com/download), then download the default lightweight model:
+
+```powershell
+ollama pull qwen2.5:1.5b
+```
+
+Keep Ollama running and use these `.env` settings:
+
+```dotenv
+SUMMARIZER_MODE=auto
+OLLAMA_BASE_URL=http://127.0.0.1:11434
+OLLAMA_MODEL=qwen2.5:1.5b
+```
+
+The first summary can take longer while the model loads. Transcript text stays on your machine.
+
+### Optional: OpenAI
+
+Add an API key to `.env` to use OpenAI when the configured Ollama model is unavailable:
 
 ```dotenv
 OPENAI_API_KEY=your_api_key_here
@@ -75,7 +97,7 @@ OPENAI_MODEL=gpt-5.4-mini
 SUMMARIZER_MODE=auto
 ```
 
-No key is required to run the project. With `SUMMARIZER_MODE=auto` and an empty key, TubeDigest uses its deterministic extractive mock summarizer and labels the result accordingly.
+No API key is required. In `auto` mode TubeDigest tries the configured local Ollama model first, then OpenAI when a key is configured, then the basic extractive fallback.
 
 ## Run Locally
 
@@ -104,7 +126,10 @@ Then open [http://localhost:8787](http://localhost:8787). Express serves the com
 | `CLIENT_ORIGIN` | `http://localhost:5173` | Comma-separated allowed browser origins |
 | `OPENAI_API_KEY` | empty | Server-side OpenAI credential |
 | `OPENAI_MODEL` | `gpt-5.4-mini` | Configurable Responses API model |
-| `SUMMARIZER_MODE` | `auto` | `auto`, `openai`, or `mock` |
+| `OLLAMA_BASE_URL` | `http://127.0.0.1:11434` | Local Ollama API URL |
+| `OLLAMA_MODEL` | `qwen2.5:1.5b` | Installed Ollama model used for summaries |
+| `OLLAMA_TIMEOUT_MS` | `180000` | Maximum local model generation time |
+| `SUMMARIZER_MODE` | `auto` | `auto`, `ollama`, `openai`, or `extractive` |
 | `TRANSCRIPT_CACHE_TTL_HOURS` | `24` | Cleaned transcript cache lifetime |
 | `RATE_LIMIT_WINDOW_MS` | `60000` | API rate-limit window |
 | `RATE_LIMIT_MAX` | `20` | Requests allowed per IP per window |
@@ -158,7 +183,7 @@ GitHub Actions runs type checking, tests, a production build, and a production-d
 
 ## Adding Another AI Provider
 
-Implement the `Summarizer` interface in `apps/server/src/summarizers/summarizer.ts`, then select the implementation in `apps/server/src/summarizers/index.ts`. Transcript fetching, chunking, routes, and the frontend do not depend on OpenAI-specific response types.
+Implement the `Summarizer` interface in `apps/server/src/summarizers/summarizer.ts`, then select the implementation in `apps/server/src/summarizers/index.ts`. Transcript fetching, chunking, routes, and the frontend do not depend on OpenAI- or Ollama-specific response types.
 
 ## Limitations
 
@@ -166,7 +191,8 @@ Implement the `Summarizer` interface in `apps/server/src/summarizers/summarizer.
 - Private, deleted, age-restricted, region-restricted, or members-only videos may be unavailable.
 - YouTube can change its page or caption response formats without notice.
 - Caption quality, especially auto-generated captions, limits summary quality.
-- The mock summarizer is extractive and intended for development, not as a replacement for an AI summary.
+- The local Ollama path ranks grounded transcript sentences instead of allowing a small model to freely rewrite facts. A larger installed model can still be selected with `OLLAMA_MODEL`.
+- The basic fallback extracts coherent timed passages but is not a replacement for an AI-generated summary.
 - Translation is not generated by TubeDigest. The language selector lists caption tracks that YouTube exposes for the video.
 
 ## Legal and Ethical Use

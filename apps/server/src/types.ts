@@ -27,10 +27,17 @@ export interface TranscriptChunk {
   text: string;
   startMs: number;
   endMs: number;
+  contextText?: string;
+}
+
+export interface TranscriptBlock {
+  text: string;
+  startMs: number;
+  endMs: number;
 }
 
 export interface VideoSummary {
   markdown: string;
-  provider: "openai" | "mock";
+  provider: "openai" | "ollama" | "extractive";
   model: string;
 }

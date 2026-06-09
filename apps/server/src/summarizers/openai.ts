@@ -78,7 +78,15 @@ export class OpenAISummarizer implements Summarizer {
         "Do not add outside knowledge or infer facts not stated in the excerpt.",
         "Use concise bullets and retain useful timestamps.",
       ].join(" "),
-      `VIDEO TITLE: ${title}\nSECTION: ${formatTimestamp(chunk.startMs)}-${formatTimestamp(chunk.endMs)}\n\n${chunk.text}`,
+      [
+        `VIDEO TITLE: ${title}`,
+        `SECTION: ${formatTimestamp(chunk.startMs)}-${formatTimestamp(chunk.endMs)}`,
+        ...(chunk.contextText
+          ? ["", "PRIOR CONTEXT FOR ORIENTATION ONLY:", chunk.contextText, "", "SECTION TO SUMMARIZE:"]
+          : []),
+        "",
+        chunk.text,
+      ].join("\n"),
       1_200,
     );
   }

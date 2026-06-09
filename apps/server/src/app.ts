@@ -20,6 +20,7 @@ const summarizeSchema = z.object({
 
 export function createApp() {
   const app = express();
+  const summarizer = createSummarizer();
   app.disable("x-powered-by");
   app.set("trust proxy", 1);
   app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
@@ -39,7 +40,11 @@ export function createApp() {
   app.use(express.json({ limit: "8kb", strict: true }));
 
   app.get("/api/health", (_request, response) => {
-    response.json({ status: "ok", summarizer: config.OPENAI_API_KEY ? "openai" : "mock" });
+    response.json({
+      status: "ok",
+      summarizerMode: config.SUMMARIZER_MODE,
+      ollamaModel: config.OLLAMA_MODEL,
+    });
   });
 
   app.use("/api", rateLimit({
@@ -75,7 +80,7 @@ export function createApp() {
       const videoId = extractVideoId(body.url);
       const transcript = await getTranscript(videoId, body.language);
       const chunks = chunkTranscript(transcript.segments);
-      const summary = await createSummarizer().summarize(transcript, chunks);
+      const summary = await summarizer.summarize(transcript, chunks);
       logger.info("Video summarized", {
         requestId: response.locals.requestId,
         videoId,

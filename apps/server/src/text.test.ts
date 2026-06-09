@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { chunkTranscript, cleanSegments, formatTimestamp } from "./text.js";
+import { chunkTranscript, cleanSegments, createTranscriptBlocks, formatTimestamp } from "./text.js";
 
 describe("transcript text utilities", () => {
   it("cleans markup, whitespace, and consecutive duplicate captions", () => {
@@ -24,6 +24,19 @@ describe("transcript text utilities", () => {
     for (let index = 0; index < segments.length; index += 1) {
       expect(combined.match(new RegExp(`Unique segment number ${index}`, "g"))).toHaveLength(1);
     }
+  });
+
+  it("reconstructs fragmented auto-captions into timed passages", () => {
+    const blocks = createTranscriptBlocks([
+      { text: "I uploaded a video yesterday where I", startMs: 0, durationMs: 2_000 },
+      { text: "opened over 1,000 wheel spins in Forza", startMs: 2_100, durationMs: 2_000 },
+      { text: "Horizon 6 and viewers asked how.", startMs: 4_800, durationMs: 2_000 },
+    ]);
+    expect(blocks).toEqual([{
+      text: "I uploaded a video yesterday where I opened over 1,000 wheel spins in Forza Horizon 6 and viewers asked how.",
+      startMs: 0,
+      endMs: 6_800,
+    }]);
   });
 
   it("formats timestamps", () => {

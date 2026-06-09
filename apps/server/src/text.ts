@@ -1,4 +1,4 @@
-import type { TranscriptChunk, TranscriptSegment } from "./types.js";
+import type { TranscriptBlock, TranscriptChunk, TranscriptSegment } from "./types.js";
 
 const HTML_ENTITIES: Record<string, string> = {
   "&amp;": "&",
@@ -42,34 +42,76 @@ export function formatTimestamp(milliseconds: number): string {
     : `${minutes}:${seconds.toString().padStart(2, "0")}`;
 }
 
+export function createTranscriptBlocks(
+  segments: TranscriptSegment[],
+  targetDurationMs = 30_000,
+  targetCharacters = 1_200,
+): TranscriptBlock[] {
+  const blocks: TranscriptBlock[] = [];
+  let current: TranscriptSegment[] = [];
+  let characters = 0;
+
+  const flush = () => {
+    if (current.length === 0) return;
+    const first = current[0]!;
+    const last = current[current.length - 1]!;
+    blocks.push({
+      startMs: first.startMs,
+      endMs: last.startMs + last.durationMs,
+      text: current.map((segment) => segment.text).join(" ").replace(/\s+/g, " ").trim(),
+    });
+    current = [];
+    characters = 0;
+  };
+
+  for (const segment of segments) {
+    const first = current[0];
+    const elapsed = first ? segment.startMs - first.startMs : 0;
+    if (current.length > 0 && (elapsed >= targetDurationMs || characters + segment.text.length > targetCharacters)) {
+      flush();
+    }
+    current.push(segment);
+    characters += segment.text.length + 1;
+  }
+  flush();
+  return blocks;
+}
+
 export function chunkTranscript(
   segments: TranscriptSegment[],
-  targetCharacters = 18_000,
+  targetCharacters = 4_700,
 ): TranscriptChunk[] {
-  if (segments.length === 0) return [];
+  const blocks = createTranscriptBlocks(segments);
+  if (blocks.length === 0) return [];
 
   const chunks: TranscriptChunk[] = [];
-  let current: TranscriptSegment[] = [];
+  let current: TranscriptBlock[] = [];
+  let previousContext: TranscriptBlock[] = [];
   let characterCount = 0;
 
   const flush = () => {
     if (current.length === 0) return;
     const first = current[0]!;
     const last = current[current.length - 1]!;
+    const contextText = previousContext
+      .map((block) => `[${formatTimestamp(block.startMs)}] ${block.text}`)
+      .join("\n");
     chunks.push({
       index: chunks.length,
       startMs: first.startMs,
-      endMs: last.startMs + last.durationMs,
-      text: current.map((segment) => `[${formatTimestamp(segment.startMs)}] ${segment.text}`).join("\n"),
+      endMs: last.endMs,
+      text: current.map((block) => `[${formatTimestamp(block.startMs)}] ${block.text}`).join("\n"),
+      ...(contextText ? { contextText } : {}),
     });
+    previousContext = current.slice(-2);
     current = [];
     characterCount = 0;
   };
 
-  for (const segment of segments) {
-    const addition = segment.text.length + 12;
+  for (const block of blocks) {
+    const addition = block.text.length + 12;
     if (current.length > 0 && characterCount + addition > targetCharacters) flush();
-    current.push(segment);
+    current.push(block);
     characterCount += addition;
   }
   flush();

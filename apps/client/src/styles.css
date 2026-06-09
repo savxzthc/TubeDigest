@@ -111,7 +111,8 @@ h1 em { color: var(--green); font-family: "Newsreader", Georgia, serif; font-wei
 .result-kicker { color: var(--accent); text-transform: uppercase; font-size: 11px; font-weight: 700; letter-spacing: .14em; }
 .result-header h2 { margin: 8px 0 10px; font-size: clamp(27px, 4vw, 42px); letter-spacing: -.035em; }
 .metadata { display: flex; flex-wrap: wrap; gap: 8px 18px; color: var(--muted); font-size: 12px; }
-.mock-badge { color: #8b4a21; background: #f5dfca; padding: 2px 7px; border-radius: 4px; }
+.provider-badge { color: #1f573d; background: #dfece4; padding: 2px 7px; border-radius: 4px; }
+.fallback-badge { color: #8b4a21; background: #f5dfca; padding: 2px 7px; border-radius: 4px; }
 .result-actions { display: flex; gap: 8px; flex: none; }
 .result-actions button { border: 1px solid var(--line); background: var(--paper); color: var(--ink); border-radius: 9px; padding: 10px 13px; cursor: pointer; font-weight: 600; font-size: 12px; }
 .result-actions button:hover { border-color: var(--green); color: var(--green); }

@@ -21,7 +21,7 @@ export function Markdown({ content }: { content: string }) {
 
   lines.forEach((rawLine) => {
     const line = rawLine.trim();
-    if (line.startsWith("- ")) {
+    if (/^[-*+]\s+/.test(line)) {
       list.push(line.slice(2));
       return;
     }

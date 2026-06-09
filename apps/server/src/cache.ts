@@ -11,7 +11,7 @@ interface CacheEntry {
 }
 
 const memory = new Map<string, CacheEntry>();
-const cacheDirectory = path.resolve(process.cwd(), "apps/server/data/cache");
+const cacheDirectory = path.resolve(import.meta.dirname, "../data/cache");
 
 function cacheKey(videoId: string, language?: string): string {
   return createHash("sha256").update(`${videoId}:${language ?? "default"}`).digest("hex");
