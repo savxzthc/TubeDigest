@@ -7,5 +7,6 @@ dist/
 Thumbs.db
 coverage/
 .cache/
+*.tsbuildinfo
 apps/server/data/cache/
 !.gitkeep
