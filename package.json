@@ -1,0 +1,31 @@
+{
+  "name": "tubedigest",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Summarize YouTube videos from accessible captions without downloading video media.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/savxzthc/TubeDigest.git"
+  },
+  "bugs": {
+    "url": "https://github.com/savxzthc/TubeDigest/issues"
+  },
+  "homepage": "https://github.com/savxzthc/TubeDigest#readme",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -n server,client -c blue,magenta \"npm run dev -w @tubedigest/server\" \"npm run dev -w @tubedigest/client\"",
+    "build": "npm run build -w @tubedigest/server && npm run build -w @tubedigest/client",
+    "test": "npm run test -w @tubedigest/server && npm run test -w @tubedigest/client",
+    "typecheck": "npm run typecheck -w @tubedigest/server && npm run typecheck -w @tubedigest/client",
+    "start": "npm run start -w @tubedigest/server"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.3"
+  },
+  "license": "MIT"
+}

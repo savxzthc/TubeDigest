@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900" role="img" aria-labelledby="title desc">
+  <title id="title">TubeDigest screenshot placeholder</title>
+  <desc id="desc">A placeholder asking maintainers to add an application screenshot.</desc>
+  <rect width="1440" height="900" fill="#f4f1e9"/>
+  <rect x="120" y="90" width="1200" height="720" rx="24" fill="#fffdf8" stroke="#dcd8ce" stroke-width="2"/>
+  <rect x="185" y="150" width="52" height="52" rx="13" fill="#245b43"/>
+  <text x="211" y="182" text-anchor="middle" font-family="Arial, sans-serif" font-weight="700" font-size="15" fill="#ffffff">TD</text>
+  <text x="255" y="184" font-family="Arial, sans-serif" font-weight="700" font-size="25" fill="#17231e">TubeDigest</text>
+  <text x="720" y="385" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-size="72" fill="#245b43">Watch less. Understand more.</text>
+  <rect x="300" y="455" width="840" height="92" rx="18" fill="#f8f6f0" stroke="#dcd8ce" stroke-width="2"/>
+  <rect x="930" y="468" width="195" height="66" rx="12" fill="#245b43"/>
+  <text x="1028" y="509" text-anchor="middle" font-family="Arial, sans-serif" font-weight="700" font-size="20" fill="#ffffff">Summarize</text>
+  <text x="720" y="675" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" fill="#69736d">Replace this placeholder with a real screenshot before release.</text>
+</svg>
